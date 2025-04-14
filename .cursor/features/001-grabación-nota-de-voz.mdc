@@ -1,0 +1,64 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# **Feature 001: Grabación y Listado de Notas de Voz**
+
+## **1. Descripción General**
+
+Esta funcionalidad permitirá al usuario grabar notas de voz cortas directamente desde la aplicación y visualizarlas en un listado cronológico dentro de la misma pantalla.
+
+## **2. Requisitos Funcionales**
+
+*   El usuario debe poder iniciar una grabación de audio.
+*   El usuario debe poder detener la grabación de audio actual.
+*   La grabación detenida debe guardarse automáticamente.
+*   Las grabaciones guardadas deben mostrarse en un listado en la pantalla.
+*   El listado debe mostrar información básica de cada nota (ej. fecha/hora o duración).
+*   La aplicación debe solicitar los permisos necesarios para grabar audio si aún no los tiene.
+
+## **3. Componentes/Pantallas Involucradas**
+
+*   **Pantalla Principal (o `VoiceNotesScreen`):**
+    *   Contendrá el botón de "Grabar/Detener".
+    *   Mostrará el listado de notas de voz grabadas.
+
+## **4. Flujo de Usuario**
+
+1.  El usuario abre la pantalla de notas de voz.
+2.  Si es la primera vez, la aplicación solicita permiso para usar el micrófono.
+3.  El usuario presiona el botón "Grabar".
+4.  La interfaz indica que la grabación está en curso (ej. cambio de icono/texto del botón, indicador visual).
+5.  El usuario presiona el botón "Detener".
+6.  La grabación se guarda.
+7.  La nueva nota de voz aparece en el listado mostrado en la pantalla.
+
+## **5. Detalles Técnicos y Dependencias Clave**
+
+*   **Permisos:** Se utilizará `expo-av` para solicitar el permiso `Permissions.AUDIO_RECORDING`.
+*   **Grabación de Audio:** Se usará la API `Audio.Recording` de `expo-av`.
+    *   `Audio.requestPermissionsAsync()`
+    *   `Audio.setAudioModeAsync()` (configurar modo para grabación)
+    *   `new Audio.Recording()`
+    *   `recording.prepareToRecordAsync()`
+    *   `recording.startAsync()`
+    *   `recording.stopAndUnloadAsync()`
+    *   `recording.getURI()` (para obtener la ruta del archivo guardado)
+*   **Almacenamiento:** Inicialmente, las grabaciones (archivos de audio) se almacenarán localmente en el espacio de la aplicación. La URI proporcionada por `expo-av` será suficiente para esto. La lista de URIs/metadatos se manejará en el estado.
+*   **Listado:** Se usará un componente `FlatList` de React Native para mostrar las notas.
+*   **Estado:** Se necesitará gestionar:
+    *   El estado actual de la grabación (idle, recording).
+    *   La instancia del objeto `Audio.Recording` actual.
+    *   Un array con la información de las grabaciones guardadas (ej. `{ uri: 'file://...', duration: 10000, timestamp: ... }`). Se utilizará el gestor de estado definido en la arquitectura (ej. `useState` para empezar, o Zustand/Context si se prefiere centralizar).
+*   **UI:**
+    *   Un botón (`Button`, `TouchableOpacity`) para iniciar/detener.
+    *   Un `FlatList` para el listado.
+    *   Componentes `Text` para mostrar detalles en el listado.
+
+## **6. Consideraciones Adicionales**
+
+*   **Formato de Audio:** `expo-av` permite configurar el formato. Se usará uno compatible por defecto.
+*   **Feedback al Usuario:** Es importante dar feedback claro sobre el estado de la grabación (grabando, detenido, error).
+*   **Manejo de Errores:** Controlar posibles errores durante la solicitud de permisos o la grabación.
+*   **Interfaz de Usuario:** Diseño inicial simple, enfocado en la funcionalidad básica. 

@@ -1,0 +1,106 @@
+---
+description: If there is a task related to the deploy to production
+globs: 
+alwaysApply: false
+---
+# **05: Despliegue a Producción**
+
+## **Introducción**
+
+Este documento describe el proceso para construir y desplegar la aplicación React Native/Expo a los entornos de producción, es decir, a las tiendas de aplicaciones Apple App Store y Google Play Store. Se utilizarán los servicios de Expo Application Services (EAS) para simplificar y automatizar gran parte de este proceso.
+
+## **Prerrequisitos**
+
+1.  **Cuenta de Expo:** Necesaria para utilizar EAS. Crear una en [expo.dev](mdc:https:/expo.dev).
+2.  **EAS CLI:** Instalada y configurada. Si no la tienes:
+    ```bash
+    npm install --global eas-cli
+    eas login
+    ```
+3.  **Cuenta de Desarrollador Apple:** Requerida para publicar en la App Store ($99/año).
+4.  **Cuenta de Desarrollador Google Play:** Requerida para publicar en Google Play Store (pago único de $25).
+5.  **Configuración del Proyecto en Expo:** El archivo `app.json` (o `app.config.js`) debe estar correctamente configurado con la información de la aplicación (nombre, identificadores, iconos, splash screen, permisos, etc.).
+
+## **Configuración de EAS Build**
+
+EAS Build es el servicio en la nube de Expo para generar los binarios nativos (`.ipa` para iOS, `.apk` o `.aab` para Android).
+
+1.  **Inicializar EAS Build:**
+    ```bash
+    eas build:configure
+    ```
+    Este comando crea (o actualiza) el archivo `eas.json` en la raíz del proyecto. Este archivo define diferentes perfiles de construcción (ej. `development`, `preview`, `production`).
+
+2.  **Perfil de Producción (`production`):**
+    *   Asegúrate de que el perfil `production` en `eas.json` esté configurado adecuadamente. Aspectos clave:
+        *   `distribution`: `store` (para enviar a las tiendas).
+        *   `android.buildType`: `apk` o `aab` (Google Play requiere `aab`).
+        *   `ios.simulator`: `false`.
+        *   Credenciales: EAS puede gestionar las credenciales de firma (certificados, provisioning profiles) o puedes proporcionarlas tú.
+        *   Variables de Entorno: Puedes definir variables específicas para el build de producción aquí.
+
+## **Proceso de Build para Producción**
+
+1.  **Ejecutar el Build:**
+    ```bash
+    # Para Android (genera un .aab)
+    eas build --platform android --profile production
+
+    # Para iOS (genera un .ipa)
+    eas build --platform ios --profile production
+    ```
+    *   EAS CLI te guiará en la configuración de credenciales si es la primera vez.
+    *   El proceso de build se ejecuta en los servidores de Expo y puede tardar un tiempo.
+    *   Al finalizar, obtendrás un enlace para descargar el binario o podrás verlo en el dashboard de Expo.
+
+## **Proceso de Envío a las Tiendas (EAS Submit)**
+
+EAS Submit automatiza el proceso de subir los binarios generados a App Store Connect y Google Play Console.
+
+1.  **Configurar EAS Submit:**
+    *   Asegúrate de tener configuradas las credenciales de las tiendas en EAS (API Keys para App Store Connect, Service Account JSON para Google Play).
+    *   Puedes configurar perfiles de envío en `eas.json` si necesitas personalización.
+
+2.  **Ejecutar el Envío:**
+    ```bash
+    # Para Android (especifica la URL o ruta local del .aab)
+    eas submit --platform android --latest # O --url <URL> o --path <PATH>
+
+    # Para iOS (especifica la URL o ruta local del .ipa)
+    eas submit --platform ios --latest # O --url <URL> o --path <PATH>
+    ```
+    *   EAS CLI subirá el binario y te guiará a través de los pasos necesarios en las consolas de las tiendas para completar la publicación (metadatos, descripción, capturas de pantalla, revisión, etc.).
+
+## **Actualizaciones Over-The-Air (OTA) con EAS Update**
+
+Una de las grandes ventajas de Expo es la capacidad de enviar actualizaciones del código JavaScript y assets directamente a los usuarios sin necesidad de pasar por el proceso de revisión de las tiendas (excepto si modificas código nativo o la configuración en `app.json`).
+
+1.  **Configuración:**
+    *   Asegúrate de que tu `app.json` esté configurado para recibir actualizaciones (normalmente lo está por defecto).
+    *   Puedes definir diferentes "canales" de actualización (ej. `production`, `staging`) en `eas.json` o al publicar.
+
+2.  **Publicar una Actualización:**
+    ```bash
+    # Publica la actualización al canal por defecto (production)
+    eas update
+
+    # Publica a un canal específico
+    eas update --branch staging
+    ```
+    *   Esto sube el *bundle* de JavaScript a los servidores de Expo.
+    *   Las aplicaciones de los usuarios descargarán la actualización la próxima vez que se abran (o según la configuración de `expo-updates`).
+
+## **Gestión de Versiones**
+
+*   **`expo.version` (en `app.json`):** Versión semántica de tu aplicación (ej. `1.0.0`). Se muestra en las tiendas.
+*   **`expo.android.versionCode`:** Número entero incremental para cada build de Android subido a Google Play.
+*   **`expo.ios.buildNumber`:** Número entero o versión (ej. `1.0.0`) incremental para cada build de iOS subido a App Store Connect.
+*   **Actualización:** Es crucial incrementar estos números (`versionCode`, `buildNumber`) cada vez que generes un nuevo binario nativo para las tiendas.
+
+## **Consideraciones Adicionales**
+
+*   **Variables de Entorno:** Utiliza un mecanismo seguro para gestionar claves de API y configuraciones diferentes entre desarrollo y producción (ej. `dotenv` con archivos específicos por entorno, o las variables de entorno de EAS Build).
+*   **Pruebas:** Realiza pruebas exhaustivas de los builds de producción antes de enviarlos a las tiendas.
+*   **Lanzamiento Gradual:** Considera estrategias de lanzamiento gradual (disponibles en Google Play y App Store) para mitigar riesgos.
+
+Este proceso, utilizando EAS, agiliza significativamente el despliegue y la actualización de aplicaciones Expo a producción. 

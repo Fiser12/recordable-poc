@@ -1,0 +1,105 @@
+---
+description: If he has to configure something related to dev environment
+globs: 
+alwaysApply: false
+---
+# **04: Configuración del Entorno de Desarrollo Replicable**
+
+## **Introducción**
+
+Este documento describe los pasos necesarios para configurar un entorno de desarrollo consistente y replicable para este proyecto React Native con Expo. El objetivo es que cualquier miembro del equipo pueda levantar el entorno y empezar a trabajar rápidamente.
+
+Dado que el desarrollo móvil con React Native y Expo interactúa con SDKs nativos y simuladores/dispositivos físicos, un enfoque basado únicamente en Dev Containers puede ser insuficiente o complejo de mantener, especialmente para el desarrollo en iOS. Por ello, nos centraremos en la gestión de versiones de las herramientas clave y una documentación clara.
+
+## **Prerrequisitos**
+
+Antes de comenzar, asegúrate de tener instaladas las siguientes herramientas en tu sistema:
+
+1.  **Node.js:**
+    *   **Requisito:** Se recomienda utilizar una versión LTS (Long Term Support). Para asegurar la consistencia entre desarrolladores, este proyecto utilizará un archivo `.nvmrc` (o similar si se usa otro gestor de versiones como `asdf`).
+    *   **Instalación:** Se recomienda usar un gestor de versiones como [nvm](mdc:https:/github.com/nvm-sh/nvm) (macOS/Linux) o [nvm-windows](mdc:https:/github.com/coreybutler/nvm-windows).
+    *   **Comando (con nvm):**
+        ```bash
+        nvm install
+        nvm use
+        ```
+        *(Esto leerá la versión del archivo `.nvmrc` y la instalará/usará)*
+
+2.  **Gestor de Paquetes (npm o Yarn):**
+    *   **Requisito:** Node.js incluye `npm`. Si el proyecto estandariza el uso de `Yarn`, asegúrate de tenerlo instalado (`npm install --global yarn`). Este proyecto utilizará **npm** (a menos que se decida lo contrario y se actualice aquí).
+
+3.  **Watchman (Recomendado para macOS/Linux):**
+    *   **Requisito:** Herramienta de Facebook para observar cambios en el sistema de archivos. Mejora el rendimiento del Metro Bundler de React Native.
+    *   **Instalación (macOS con Homebrew):** `brew install watchman`
+
+4.  **Git:**
+    *   **Requisito:** Sistema de control de versiones.
+    *   **Instalación:** Disponible en la mayoría de sistemas o descargable desde [git-scm.com](mdc:https:/git-scm.com).
+
+5.  **Expo CLI:**
+    *   **Requisito:** Interfaz de línea de comandos para trabajar con Expo.
+    *   **Instalación Global:**
+        ```bash
+        npm install --global expo-cli
+        ```
+
+6.  **Expo Go App (en dispositivo físico):**
+    *   **Requisito:** Aplicación móvil disponible en App Store (iOS) y Google Play (Android).
+    *   **Uso:** Permite ejecutar el proyecto rápidamente durante el desarrollo escaneando un código QR generado por Expo CLI.
+
+7.  **Simuladores/Emuladores (Opcional pero recomendado):**
+    *   **iOS Simulator:** Requiere macOS y Xcode. Instalar Xcode desde la Mac App Store y configurar los simuladores desde Xcode (`Xcode > Settings > Platforms`).
+    *   **Android Emulator:** Requiere Android Studio. Instalar Android Studio y configurar los emuladores (AVDs) a través del AVD Manager.
+
+## **Pasos de Configuración del Proyecto**
+
+1.  **Clonar el Repositorio:**
+    ```bash
+    git clone <url-del-repositorio>
+    cd <nombre-del-directorio-del-proyecto>
+    ```
+
+2.  **Configurar Versión de Node.js (si usas nvm):**
+    ```bash
+    nvm use
+    ```
+    *(Asegúrate de que el archivo `.nvmrc` existe en la raíz con la versión LTS deseada, ej: `lts/hydrogen`)*
+
+3.  **Instalar Dependencias del Proyecto:**
+    ```bash
+    npm install
+    ```
+    *(O `yarn install` si se optó por Yarn)*
+
+## **Ejecutar la Aplicación en Desarrollo**
+
+1.  **Iniciar el Servidor de Desarrollo Expo:**
+    ```bash
+    npx expo start
+    ```
+    *(Este comando iniciará el Metro Bundler y mostrará un código QR en la terminal)*
+
+2.  **Abrir en Dispositivo Físico:**
+    *   Abre la aplicación **Expo Go** en tu dispositivo iOS o Android.
+    *   Escanea el código QR mostrado en la terminal.
+
+3.  **Abrir en Simulador/Emulador:**
+    *   Asegúrate de que el simulador/emulador deseado esté en ejecución.
+    *   En la terminal donde ejecutaste `npx expo start`, presiona:
+        *   `i` para abrir en el Simulador de iOS.
+        *   `a` para abrir en el Emulador de Android.
+
+## **Configuración del Editor/IDE**
+
+Se recomienda instalar las siguientes extensiones en tu editor (ej. VS Code) para mejorar la experiencia de desarrollo:
+
+*   **ESLint:** Para el análisis estático de código y seguimiento de reglas de estilo.
+*   **Prettier - Code formatter:** Para formateo automático del código.
+*   **React Native Tools:** Para debugging y integración con React Native.
+*   **IntelliSense para CSS/Styled Components (si aplica):** Según cómo se manejen los estilos.
+
+*(Asegúrate de configurar el formateo al guardar y que ESLint/Prettier usen los archivos de configuración del proyecto (`.eslintrc.js`, `.prettierrc.js`))*.
+
+## **Conclusión**
+
+Siguiendo estos pasos y manteniendo las versiones de las herramientas clave (especialmente Node.js y Expo CLI) consistentes (idealmente definidas en la documentación o archivos de configuración como `.nvmrc`), se puede lograr un entorno de desarrollo suficientemente replicable para trabajar eficientemente en el proyecto. 
